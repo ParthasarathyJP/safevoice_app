@@ -40,12 +40,14 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
     _initialize();
   }
 
-  /// ✅ Chains all startup calls in order, sets _initializing = false when done
+  /// ✅ Chains all startup calls in order
   Future<void> _initialize() async {
     await _loadPreferences();
     if (_stationMode == 'gps') {
-      await _loadNearestStation(); // internally calls _loadComplaintStats()
+      await _loadNearestStation(); // sets _loadingStation = false internally
     } else {
+      // ✅ Custom mode: station is already known from prefs, no GPS fetch needed
+      if (mounted) setState(() => _loadingStation = false);
       await _loadComplaintStats();
     }
     if (mounted) {
@@ -69,7 +71,10 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
   /// ✅ Re-run full initialization when returning from Settings
   @override
   void didPopNext() {
-    setState(() => _initializing = true);
+    setState(() {
+      _initializing = true;
+      _loadingStation = true;
+    });
     _initialize();
   }
 
@@ -80,6 +85,9 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
         _stationMode = prefs.getString('stationMode') ?? 'gps';
         _selectedStation = prefs.getString('selectedStation');
         _selectedState = prefs.getString('selectedState');
+        // ✅ Do NOT set _loadingStation = false here
+        // _loadNearestStation() manages it for GPS mode
+        // _initialize() manages it for custom mode
       });
     }
   }
@@ -133,8 +141,9 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
 
       if (mounted) {
         setState(() {
-          _nearestStation = station ?? {"StationName": "No station found", "State": ""};
-          _loadingStation = false;
+          _nearestStation =
+              station ?? {"StationName": "No station found", "State": ""};
+          _loadingStation = false; // ✅ GPS fetch done
         });
       }
 
@@ -146,7 +155,7 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
       if (mounted) {
         setState(() {
           _nearestStation = {"StationName": "Unknown", "State": "Unavailable"};
-          _loadingStation = false;
+          _loadingStation = false; // ✅ Even on error, stop showing loading text
         });
       }
     }
@@ -244,8 +253,7 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
               )
             : Text(
                 '$value',
-                style:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
       ),
     );
@@ -253,7 +261,7 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ Show full-screen loader during initialization or return from Settings
+    // ✅ Show full-screen loader during initialization
     if (_initializing) {
       return Center(
         child: Column(
@@ -406,8 +414,7 @@ class _DashboardScreenState extends State<DashboardScreen> with RouteAware {
                       ),
                       SizedBox(width: 10),
                       ElevatedButton(
-                        onPressed:
-                            _loadingComplaint ? null : _trackComplaint,
+                        onPressed: _loadingComplaint ? null : _trackComplaint,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 16),
