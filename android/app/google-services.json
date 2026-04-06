@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1084052736567",
+    "project_id": "listen-care",
+    "storage_bucket": "listen-care.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1084052736567:android:90655190312f3d542e4db2",
+        "android_client_info": {
+          "package_name": "com.listen.care"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVj_i_gmlv4ix4h2bqAJ8cF2M6G9tidbE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
