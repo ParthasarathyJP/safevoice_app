@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
-import 'splash_screen.dart';   // Splash screen
-import 'app_drawer.dart';     // Contains HomeContainer + AppDrawer
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'splash_screen.dart';
+import 'app_drawer.dart';
 
-// Create a global RouteObserver
+// Global RouteObserver
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await dotenv.load(fileName: ".env");
+    debugPrint("API key loaded: ${dotenv.env['OPENAI_API_KEY'] != null}");
+  } catch (e) {
+    debugPrint("⚠️ Could not load .env file: $e");
+  }
   runApp(SafeVoiceApp());
 }
 
@@ -33,8 +41,8 @@ class SafeVoiceApp extends StatelessWidget {
           ),
         ),
       ),
-      home: SplashScreen(), // Start with splash
-      navigatorObservers: [routeObserver], // Attach observer here
+      home: SplashScreen(),
+      navigatorObservers: [routeObserver],
     );
   }
 }

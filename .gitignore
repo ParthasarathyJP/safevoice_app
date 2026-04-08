@@ -10,3 +10,6 @@ android/.gradle/
 # IDE files
 .vscode/
 .idea/
+
+.env
+SafeVoiceOpenAIKey.txt
